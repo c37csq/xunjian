@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+<!--  <link rel="stylesheet" type="text/css" href="http://unpkg.com/iview/dist/styles/iview.css">-->
+  <title>巡检报告</title>
+  <style>
+    * {
+      padding: 0;
+      margin: 0;
+    }
+    body {
+      overflow-x: hidden;
+    }
+
+    .container {
+      background: #eee;
+      padding: 15px;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 8px;
+      border: 1px solid #E5E6EC;
+      padding: 26px;
+    }
+
+    .card header {
+      text-align: center;
+      padding: 8px 0 20px 0;
+    }
+
+    .card header h2 {
+      font-size: 24px;
+      font-weight: normal;
+      color: #515a6e;
+    }
+
+    .card header p {
+      font-size: 12px;
+      color: #BDC5D2;
+    }
+
+    .leftD {
+      width: 180px !important;
+      font-size: 14px;
+      height: 180px !important;
+      margin-right: 20px;
+    }
+
+    .leftD .score {
+      font-size: 40px;
+      text-align: center;
+      margin-top: 40px;
+    }
+
+    .leftD div {
+      text-align: center;
+    }
+
+    .redB {
+      background: url('./images/red.png') no-repeat center;
+      background-size: contain;
+      color: #E02020;
+    }
+
+    .blueB {
+      background: url('./images/blue.png') no-repeat center;
+      background-size: contain;
+      color: #0091FF;
+    }
+
+    .orangeB {
+      background: url('./images/orange.png') no-repeat center;
+      background-size: contain;
+      color: #FF8500;
+    }
+
+    .greenB {
+      background: url('./images/green.png') no-repeat center;
+      background-size: contain;
+      color: #4CAF50;
+    }
+
+    .tableLine {
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+    }
+    .open {
+      display: none;
+    }
+    .close {
+      display: inline-block;
+    }
+    .open_img {
+      display: none;
+    }
+    .close_img {
+      display: inline-block;
+    }
+    .display_tr {
+      display: none;
+    }
+
+    .tr_open {
+      display: table-row !important;
+    }
+    .tableLine img {
+      height: 10px;
+    }
+    .table_area {
+      padding: 0 10px 10px 10px;
+      margin-top: 20px;
+      width: 98.5%;
+      border: 1px solid #ccc;
+    }
+    .table_area .bottom_table {
+      border-collapse:collapse;
+    }
+    .table_area .bottom_table tr {
+      border: 1px solid #ccc;
+    }
+    .table_area .bottom_table tr:nth-of-type(1) td{
+      font-weight: bold;
+      text-align: center;
+    }
+    .table_area .bottom_table tr td {
+      padding: 15px 0 15px 15px;
+      font-size: 12px;
+      text-align: center;
+      color: #515a6e;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .display_tr table tr td {
+      border: 1px solid #ccc;
+    }
+    .display_tr .display_tr_td {
+      text-align: center;
+      font-weight: normal !important;
+      padding: 0 !important;
+      width: 80px;
+      background: #fafafa;
+      border: 1px solid #E8E8E8;
+    }
+    .line {
+      display: block;
+      width: 600px;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .line {
+      display: block;
+      width: 600px;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .open {
+      display: none;
+    }
+    .close {
+      display: inline-block;
+    }
+    .open_img {
+      display: none;
+    }
+    .close_img {
+      display: inline-block;
+    }
+    .display_tr {
+      display: none;
+    }
+
+    .tr_open {
+      display: table-row !important;
+    }
+  </style>
+</head>
+<body>
+<div id="app">
+  <div class="container">
+    <div class="card">
+      <header>
+        <h2>{{ name }}</h2>
+        <p>{{data.topData.created_at}} ~ {{data.topData.updated_at}}</p>
+      </header>
+      <el-row :gutter="24" style="border: 1px solid #E5E6EC;margin: 10px 0;padding: 10px;">
+        <el-col :span="14">
+          <div>
+            <div style="font-size: 16px;color: rgba(0, 0, 0, 0.85);margin-bottom: 20px">
+              健康指数
+            </div>
+            <div style="display: flex">
+              <div
+                      :class="scoreInfo[scoreObj.level].class"
+                      class="leftD">
+                <div class="score">
+                  {{ scoreObj.val }}
+                </div>
+                <div>
+                  {{ scoreInfo[scoreObj.level].text }}
+                </div>
+              </div>
+              <div class="xjInfo">
+                <p style="color: rgba(0, 0, 0, 0.85);font-size: 16px;margin-bottom: 30px;">
+                  巡检结果 ：
+                </p>
+                <p style="rgba(0, 0, 0, 0.65);margin-bottom: 30px;font-size: 16px">
+                  {{ status }}
+                </p>
+                <p style="font-size: 12px;color: rgba(0, 0, 0, 0.35);">
+                  注：非常危险≤70；较危险＞70，≤80；较安全＞80，≤90； 非常安全＞90
+                </p>
+              </div>
+            </div>
+          </div>
+        </el-col>
+        <el-col :span="10">
+          <div>
+            <div style="font-size: 16px;color: rgba(0, 0, 0, 0.85);margin-bottom: 10px">
+              雷达评分图
+            </div>
+            <div id="radarOpt" style="height: 230px;width: 100%;">
+
+            </div>
+            <!--            <chart-->
+            <!--                    :options="radarOpt"-->
+            <!--                    style="height: 230px;"-->
+            <!--                    autoresize-->
+            <!--            />-->
+          </div>
+        </el-col>
+      </el-row>
+      <el-row :gutter="24" style="border: 1px solid #E5E6EC;margin: 10px 0;padding: 10px;">
+        <el-col :span="12">
+          <h3>
+            巡检命中规则分布
+          </h3>
+          <div id="mzgzOpt" style="height: 230px;"></div>
+        </el-col>
+        <el-col :span="12">
+          <el-table
+                  style="width: 682px;height: 100%;"
+                  :data="xjmzgzArr"
+                  stripe
+                  border
+          >
+            <el-table-column
+                    width="110"
+                    align="center"
+                    type="index"
+                    label="序号">
+            </el-table-column>
+            <el-table-column
+                    width="180"
+                    align="center"
+                    prop="name"
+                    label="维度">
+            </el-table-column>
+            <el-table-column
+                    prop="val"
+                    align="center"
+                    width="180"
+                    label="命中个数">
+            </el-table-column>
+            <el-table-column
+                    prop="all"
+                    align="center"
+                    width="180"
+                    label="规则总数">
+            </el-table-column>
+          </el-table>
+        </el-col>
+      </el-row>
+      <el-row :gutter="24" style="border: 1px solid #E5E6EC;margin: 10px 0;padding: 10px;">
+        <el-col :span="12">
+          <h3>
+            巡检规则分布
+          </h3>
+          <div id="xjfbOpt" style="height: 230px;"></div>
+        </el-col>
+        <el-col :span="12">
+          <el-table
+                  style="width: 682px;height: 100%;"
+                  :data="xjmzgzArr"
+                  stripe
+                  border
+          >
+            <el-table-column
+                    align="center"
+                    width="50"
+                    type="index"
+                    label="序号">
+            </el-table-column>
+            <el-table-column
+                    width="120"
+                    align="center"
+                    prop="name"
+                    label="维度">
+            </el-table-column>
+            <el-table-column
+                    align="center"
+                    label="风险项">
+              <el-table-column
+                      width="120"
+                      align="center"
+                      label="严重">
+                <template slot-scope="scope">
+                  <span>{{scope.row.P4.length}}</span>
+                </template>
+              </el-table-column>
+              <el-table-column
+                      width="120"
+                      align="center"
+                      label="警告">
+                <template slot-scope="scope">
+                  <span>{{scope.row.P3.length}}</span>
+                </template>
+              </el-table-column>
+              <el-table-column
+                      width="120"
+                      align="center"
+                      prop="ts"
+                      label="提示">
+                <template slot-scope="scope">
+                  <span>{{scope.row.P2.length}}</span>
+                </template>
+              </el-table-column>
+            </el-table-column>
+            <el-table-column
+                    width="120"
+                    align="center"
+                    label="风险评估">
+              <template slot-scope="scope">
+                <span>{{scoreMap[scope.row.key]}}</span>
+              </template>
+            </el-table-column>
+          </el-table>
+        </el-col>
+      </el-row>
+      <el-row style="border: 1px solid #E5E6EC;margin: 10px 0;padding: 10px;">
+        <div class="table_area">
+          <h5 style="margin: 10px 0;">巡检规则分布详情</h5>
+          <div class="bottom_table_wrapper" style="width: 100%;">
+<!--            <table  class="bottom_table"-->
+<!--                    style="width: 100%;"-->
+<!--                   cellpadding="0"-->
+<!--                   cellspacing="0">-->
+<!--                <tr style="background: #f8f8f9;width: 100%;">-->
+<!--                  <td>序号</td>-->
+<!--                  <td>维度</td>-->
+<!--                  <td>风险项名称</td>-->
+<!--                  <td>命中个数</td>-->
+<!--                </tr>-->
+<!--                <tr>-->
+<!--                  <td>1</td>-->
+<!--                  <td>管理</td>-->
+<!--                  <td class="click_td" style="text-align: left;cursor: pointer;"><img class="close" src="./images/icon_close.png" width="10"/><img class="open" src="./images/icon_open.png" width="10"/> <span style="color: #ff0000">[严重风险]</span> 解析失败检查</td>-->
+<!--                  <td>17</td>-->
+<!--                </tr>-->
+<!--                <tr class="display_tr">-->
+<!--                  <td colspan="4" style="width: 100%;padding: 18px 35px;">-->
+<!--                    <table class="table_one" style="width: 100%;border-collapse:collapse;">-->
+<!--                      <tr>-->
+<!--                        <td class="display_tr_td">规则说明</td>-->
+<!--                        <td style="font-weight: normal;">全字段查询且解析后超过20列</td>-->
+<!--                      </tr>-->
+<!--                      <tr>-->
+<!--                        <td class="display_tr_td">巡检结果</td>-->
+<!--                        <td  style="color: rgb(0, 145, 255);cursor: pointer;">排查返回结果集是否需要使用这些字段</td>-->
+<!--                      </tr>-->
+<!--                      <tr>-->
+<!--                        <td class="display_tr_td">结果详情</td>-->
+<!--                        <td style="display: flex;justify-content: center;align-items: center;">-->
+<!--                          <div style="height: 120px;overflow-y:auto;width: 600px;">-->
+<!--                            <span class="line">SQL_SELECT_ANY_ADV2SQL_SELECT_ANY_ADV2SQL_SELECT_ANY_ADV2SQL_SELECT_ANY_ADV2SQL_SELECT_ANY_ADV2SQL_SELECT_ANY_ADV2SQL_SELECT_ANY_ADV2SQL_SELECT_ANY_ADV2SQL_SELECT_ANY_ADV2SQL_SELECT_ANY_ADV2SQL_SELECT_ANY_ADV2SQL_SELECT_ANY_ADV2SQL_SELECT_ANY_ADV2SQL_SELECT_ANY_ADV2SQL_SELECT_ANY_ADV2SQL_SELECT_ANY_ADV2SQL_SELECT_ANY_ADV2</span>-->
+<!--                            <span class="line">SQL_SELECT_ANY_ADV2SQL_SELECT_ANY_ADV2SQL_SELECT_ANY_ADV2SQL_SELECT_ANY_ADV2SQL_SELECT_ANY_ADV2SQL_SELECT_ANY_ADV2SQL_SELECT_ANY_ADV2SQL_SELECT_ANY_ADV2SQL_SELECT_ANY_ADV2SQL_SELECT_ANY_ADV2SQL_SELECT_ANY_ADV2SQL_SELECT_ANY_ADV2SQL_SELECT_ANY_ADV2SQL_SELECT_ANY_ADV2SQL_SELECT_ANY_ADV2SQL_SELECT_ANY_ADV2SQL_SELECT_ANY_ADV2</span>-->
+<!--                            <span class="line">SQL_SELECT_ANY_ADV2SQL_SELECT_ANY_ADV2SQL_SELECT_ANY_ADV2SQL_SELECT_ANY_ADV2SQL_SELECT_ANY_ADV2SQL_SELECT_ANY_ADV2SQL_SELECT_ANY_ADV2SQL_SELECT_ANY_ADV2SQL_SELECT_ANY_ADV2SQL_SELECT_ANY_ADV2SQL_SELECT_ANY_ADV2SQL_SELECT_ANY_ADV2SQL_SELECT_ANY_ADV2SQL_SELECT_ANY_ADV2SQL_SELECT_ANY_ADV2SQL_SELECT_ANY_ADV2SQL_SELECT_ANY_ADV2</span>-->
+<!--                            <span class="line">SQL_SELECT_ANY_ADV2SQL_SELECT_ANY_ADV2SQL_SELECT_ANY_ADV2SQL_SELECT_ANY_ADV2SQL_SELECT_ANY_ADV2SQL_SELECT_ANY_ADV2SQL_SELECT_ANY_ADV2SQL_SELECT_ANY_ADV2SQL_SELECT_ANY_ADV2SQL_SELECT_ANY_ADV2SQL_SELECT_ANY_ADV2SQL_SELECT_ANY_ADV2SQL_SELECT_ANY_ADV2SQL_SELECT_ANY_ADV2SQL_SELECT_ANY_ADV2SQL_SELECT_ANY_ADV2SQL_SELECT_ANY_ADV2</span>-->
+<!--                            <span class="line">SQL_SELECT_ANY_ADV2SQL_SELECT_ANY_ADV2SQL_SELECT_ANY_ADV2SQL_SELECT_ANY_ADV2SQL_SELECT_ANY_ADV2SQL_SELECT_ANY_ADV2SQL_SELECT_ANY_ADV2SQL_SELECT_ANY_ADV2SQL_SELECT_ANY_ADV2SQL_SELECT_ANY_ADV2SQL_SELECT_ANY_ADV2SQL_SELECT_ANY_ADV2SQL_SELECT_ANY_ADV2SQL_SELECT_ANY_ADV2SQL_SELECT_ANY_ADV2SQL_SELECT_ANY_ADV2SQL_SELECT_ANY_ADV2</span>-->
+<!--                          </div>-->
+<!--                        </td>-->
+<!--                      </tr>-->
+<!--                      <tr>-->
+<!--                        <td class="display_tr_td">修复命令</td>-->
+<!--                        <td>排查返回结果集是否需要使用这些字段</td>-->
+<!--                      </tr>-->
+<!--                    </table>-->
+<!--                  </td>-->
+<!--                </tr>-->
+<!--                <tr>-->
+<!--                  <td>1</td>-->
+<!--                  <td>管理</td>-->
+<!--                  <td class="click_td" style="text-align: left;cursor: pointer;"><img class="close" src="./images/icon_close.png" width="10"/><img class="open" src="./images/icon_open.png" width="10"/> <span style="color: #ff0000">[严重风险]</span> 解析失败检查</td>-->
+<!--                  <td>17</td>-->
+<!--                </tr>-->
+<!--                <tr class="display_tr">-->
+<!--                <td colspan="4" style="width: 100%;padding: 18px 35px;">-->
+<!--                  <table class="table_one" style="width: 100%;border-collapse:collapse;">-->
+<!--                    <tr>-->
+<!--                      <td class="display_tr_td">规则说明</td>-->
+<!--                      <td style="font-weight: normal;">全字段查询且解析后超过20列</td>-->
+<!--                    </tr>-->
+<!--                    <tr>-->
+<!--                      <td class="display_tr_td">巡检结果</td>-->
+<!--                      <td  style="color: rgb(0, 145, 255);cursor: pointer;">排查返回结果集是否需要使用这些字段</td>-->
+<!--                    </tr>-->
+<!--                    <tr>-->
+<!--                      <td class="display_tr_td">结果详情</td>-->
+<!--                      <td>-->
+<!--                        SQL_SELECT_ANY_ADV2-->
+<!--                      </td>-->
+<!--                    </tr>-->
+<!--                    <tr>-->
+<!--                      <td class="display_tr_td">修复命令</td>-->
+<!--                      <td>排查返回结果集是否需要使用这些字段</td>-->
+<!--                    </tr>-->
+<!--                  </table>-->
+<!--                </td>-->
+<!--              </tr>-->
+<!--            </table>-->
+          </div>
+        </div>
+      </el-row>
+    </div>
+  </div>
+</div>
+<script src="./js/echarts.min.js"></script>
+<script type="text/javascript" src="http://vuejs.org/js/vue.min.js"></script>
+<script src="https://unpkg.com/element-ui/lib/index.js"></script>
+<!--<script src="http://unpkg.com/iview/dist/iview.min.js"></script>-->
+<script src="./js/data.js"></script>
+<script>
+  const translation = {
+    performance: '性能',
+    secure: '安全',
+    backup: '备份',
+    management: '管理',
+    config: '配置',
+    P1: '正常',
+    P2: '轻微',
+    P3: '中等',
+    P4: '严重',
+  };
+  new Vue({
+    el: '#app',
+    data () {
+      return {
+        name: '',
+        pArr: [],
+        riskObj: {
+          P4: {
+            color: 'rgba(224,32,32,0.8)',
+            text: '严重风险',
+          },
+          P3: {
+            color: 'rgba(245,124,0,0.8)',
+            text: '警告风险',
+          },
+          P2: {
+            color: 'rgba(247,181,0,0.8)',
+            text: '提示风险',
+          },
+        },
+        scoreMap: {
+          performance: 0,
+          secure: 0,
+          management: 0,
+          backup: 0,
+          config: 0,
+        },
+        xjmzgzArr: [],
+        P1: [],
+        P2: [],
+        P3: [],
+        P4: [],
+        performance: {
+          name: '性能',
+          all: 0,
+          val: 0,
+          arr: [],
+          key: 'performance',
+          P1: 0,
+          P2: 0,
+          P3: 0,
+          P4: 0,
+        },
+        secure: {
+          name: '安全',
+          all: 0,
+          val: 0,
+          arr: [],
+          key: 'secure',
+          P1: 0,
+          P2: 0,
+          P3: 0,
+          P4: 0,
+        },
+        management: {
+          name: '管理',
+          all: 0,
+          val: 0,
+          arr: [],
+          key: 'management',
+          P1: 0,
+          P2: 0,
+          P3: 0,
+          P4: 0,
+        },
+        backup: {
+          name: '备份',
+          all: 0,
+          val: 0,
+          arr: [],
+          key: 'backup',
+          P1: 0,
+          P2: 0,
+          P3: 0,
+          P4: 0,
+        },
+        config: {
+          name: '配置',
+          all: 0,
+          val: 0,
+          arr: [],
+          key: 'config',
+          P1: 0,
+          P2: 0,
+          P3: 0,
+          P4: 0,
+        },
+        scoreInfo: {
+          high: {
+            class: 'redB',
+            text: '非常危险',
+          },
+          warning: {
+            class: 'orangeB',
+            text: '较危险',
+          },
+          info: {
+            class: 'blueB',
+            text: '较安全',
+          },
+          success: {
+            class: 'greenB',
+            text: '非常安全',
+          },
+        },
+        scoreObj: {
+          val: 0,
+          level: 'high',
+        },
+      }
+    },
+    computed: {
+      status() {
+        const s = parseInt(this.scoreObj.val, 10);
+        if (typeof s === 'number') {
+          if (s < 60) {
+            return '存在严重运维隐患，急需整改';
+          } else if (s < 80) {
+            return '存在一定运维隐患，建议二次确认后调整';
+          }
+        }
+        return '状态良好，无需调整';
+      },
+    },
+    created() {
+      this.scoreObj.val = data.topData.scores.total;
+      this.scoreMap = data.topData.scores;
+      this.name = data.topData.name;
+      delete this.scoreMap.total;
+      if (this.scoreObj.val <= 70) {
+        this.scoreObj.level = 'high';
+      } else if (this.scoreObj.val <= 80) {
+        this.scoreObj.level = 'warning';
+      } else if (this.scoreObj.val <= 90) {
+        this.scoreObj.level = 'info';
+      } else {
+        this.scoreObj.level = 'success';
+      }
+      this.P1 = data.P1;
+      this.P2 = data.P2;
+      this.P3 = data.P3;
+      this.P4 = data.P4;
+      const keys = Object.keys(this.scoreMap).filter(item => item !== '管理');
+      const all_map = {
+        'performance': data.performance,
+        'secure': data.secure,
+        'management': data.management,
+        'backup': data.backup,
+        'config': data.config,
+      }
+      const level_map = {
+        'performance': data.performanceP2_P3_P4,
+        'secure': data.secureP2_P3_P4,
+        'management': data.managementP2_P3_P4,
+        'backup': data.backupP2_P3_P4,
+        'config': data.configP2_P3_P4,
+      }
+      keys.forEach((item) => {
+        this[item].all = all_map[item].length;
+        this[item].val = level_map[item].length;
+        this[item].arr = level_map[item];
+        ['P4', 'P3', 'P2', 'P1'].forEach((p) => [
+          this[item][p] = level_map[item].filter(i => i.priority === p)
+        ]);
+      })
+      const p_map = {
+        'P4': data.P4,
+        'P3': data.P3,
+        'P2': data.P2,
+      }
+      keys.forEach((item) => {
+        this.xjmzgzArr.push({
+          ...this[item],
+        })
+      })
+        const p_arr = ['P4', 'P3', 'P2'];
+      for (let i = 0; i < p_arr.length; i ++) {
+        this.pArr.push(...p_map[p_arr[i]]);
+      }
+      this.pArr.forEach((item) => {
+        item._expanded = false;
+        item.detailMax = item.detail.slice(0, 100);
+      });
+      this.renderTable(document.querySelector('.bottom_table_wrapper'), this.pArr);
+    },
+    mounted() {
+      this.radarOpt();
+      this.xjfbOpt();
+      this.mzgzOpt();
+      this.bindEvent();
+    },
+    methods: {
+      renderTable(dom, data) {
+        var riskMap = {
+          'P4': '[严重风险]',
+          'P3': '[警告风险]',
+          'P2': '[提示风险]',
+        }
+        var colorMap = {
+          'P4': 'rgb(224, 32, 32)',
+          'P3': 'rgb(245, 124, 0)',
+          'P2': 'rgb(71, 167, 240)',
+        }
+        let str = `<table  class="bottom_table"
+                   cellpadding="0"
+                   cellspacing="0">
+                <tr style="background: #f8f8f9;width: 100%;">
+                  <td style="width: 50px">序号</td>
+                  <td style="width: 150px">维度</td>
+                  <td style="width: 1027px">风险项名称</td>
+                  <td style="width: 80px">命中个数</td>
+                </tr>`;
+        data.forEach((item, index) => {
+          str += `<tr>
+                  <td>${index + 1}</td>
+                  <td>${translation[item.type]}</td>
+                  <td class="click_td" style="text-align: left;cursor: pointer;"><img class="close" src="./images/icon_close.png" width="10"/><img class="open" src="./images/icon_open.png" width="10"/> <span style="color: ${colorMap[item.priority]}">${riskMap[item.priority]}</span> ${item.name}</td>
+                  <td>${item.detail_length}</td>
+                </tr>
+                <tr class="display_tr">
+                  <td colspan="4" style="width: 100%;padding: 18px 35px;">
+                    <table class="table_one" style="width: 100%;border-collapse:collapse;">
+                      <tr>
+                        <td class="display_tr_td">规则说明</td>
+                        <td style="font-weight: normal;text-align: center;">${item.description}</td>
+                      </tr>
+                      <tr>
+                        <td class="display_tr_td">巡检结果</td>
+                        <td  style="color: rgb(0, 145, 255);cursor: pointer;text-align: center;">${item.result}</td>
+                      </tr>
+                      <tr>
+                        <td class="display_tr_td">结果详情</td>
+                        <td  style="text-align: center;">
+                            <div style="height: 100px;display: inline-block;overflow-y:auto;width: 600px;">
+                          `;
+          item.detailMax.forEach((item1, index) => {
+            str += `<span class="line">${item1}</span>`;
+          });
+                str += `</div>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td class="display_tr_td">修复命令</td>
+                        <td>${item.advise}</td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>`;
+        });
+        str += `</table>`;
+        dom.innerHTML = str;
+      },
+      bindEvent() {
+        var click_td = document.querySelectorAll('.click_td')
+        for (let i = 0; i < click_td.length; i ++) {
+          var that = this;
+          click_td[i].onclick = function () {
+            var trs = document.querySelectorAll('.display_tr');
+            if (trs[i].classList.contains('tr_open')) {
+              that.changeImgStyle(i, false);
+            } else {
+              that.changeImgStyle(i, true);
+            }
+          }
+        }
+      },
+      xjfbOpt() {
+        const xjfbChart = echarts.init(document.getElementById('xjfbOpt'));
+        let count = 0;
+        const highRulesArr = ['P4', 'P3', 'P2', 'P1'].map(item => ({
+          value: this[item].length,
+          name: translation[item],
+        }));
+        highRulesArr.forEach((item) => {
+          count += item.value;
+        });
+        xjfbChart.setOption({
+          title: {
+            subtext: `规则总数: ${count}`,
+            right: '20%',
+            top: '70',
+            subtextStyle: {
+              color: '#000',
+              fontSize: 12,
+              fontWeight: 'bold',
+            },
+          },
+          tooltip: {
+            trigger: 'item',
+            formatter: '{b} : {c} ({d}%)',
+          },
+          color: ['#F14133', '#FF9901', '#1890FF', '#4CAF50'],
+          legend: {
+            orient: 'vertical',
+            right: '20%',
+            top: '120',
+            formatter: name => `${name} / ${highRulesArr.find(item => item && item.name === name).value}`,
+            data: ['严重', '中等', '轻微', '正常'],
+          },
+          series: [
+            {
+              type: 'pie',
+              radius: '55%',
+              center: ['32%', '48%'],
+              data: highRulesArr,
+              emphasis: {
+                itemStyle: {
+                  shadowBlur: 10,
+                  shadowOffsetX: 0,
+                  shadowColor: 'rgba(0, 0, 0, 0.5)',
+                },
+              },
+              itemStyle: {
+                emphasis: {
+                  borderWidth: 3,
+                  borderColor: '#ffffff',
+                },
+              },
+            },
+          ],
+        });
+      },
+      radarOpt() {
+        const obj = {};
+        Object.entries(this.scoreMap).forEach((item) => {
+          if (item[0] !== '管理') {
+            obj[item[0]] = item[1];
+          }
+        });
+        const radarChart = echarts.init(document.getElementById('radarOpt'));
+        radarChart.setOption({
+          backgroundColor: '#fff',
+          tooltip: {
+            show: true,
+            trigger: 'item',
+            confine: true,
+            padding: [16, 10],
+            backgroundColor: 'rgba(53,132,255,0.70)',
+            borderRadius: 10,
+            textStyle: {
+              color: '#fff',
+            },
+          },
+          color: ['#5BCEFF'],
+          series: [{
+            name: '巡检雷达图',
+            type: 'radar',
+            symbolSize: 0,
+            areaStyle: {
+              normal: {
+                shadowBlur: 13,
+                shadowColor: 'rgba(0,0,0,.2)',
+                shadowOffsetX: 0,
+                shadowOffsetY: 10,
+                opacity: 1,
+              },
+            },
+            data: [{value: Object.values(obj)}],
+            animation: false,
+          }],
+          radar: {
+            radius: '50%',
+            splitNumber: 8,
+            axisLine: {
+              lineStyle: {
+                color: '#000',
+                opacity: 0.05,
+              },
+            },
+            splitLine: {
+              lineStyle: {
+                color: '#fff',
+                opacity: 0.6,
+              },
+            },
+            splitArea: {
+              areaStyle: {
+                color: '#E5E6EC',
+                opacity: 1,
+              },
+            },
+            indicator: Object.keys(obj).map(k => ({
+              name: `${translation[k]}(${obj[k].toFixed(1)})`,
+              max: 100,
+              color: '#8D98AB',
+            })),
+          },
+        });
+      },
+      mzgzOpt() {
+        const xjfbChart = echarts.init(document.getElementById('mzgzOpt'));
+        const xAxisData = [];
+        const xData = [];
+        const allData = [];
+        this.xjmzgzArr.forEach((item) => {
+          xAxisData.push(item.name);
+          xData.push(item.val);
+          allData.push(item.all);
+        });
+        xjfbChart.setOption({
+          tooltip: {
+            trigger: 'axis',
+            axisPointer: { // 坐标轴指示器，坐标轴触发有效
+              type: 'shadow', // 默认为直线，可选为：'line' | 'shadow'
+            },
+          },
+          grid: {
+            left: '3%',
+            right: '4%',
+            bottom: '3%',
+            containLabel: true,
+          },
+          xAxis: [
+            {
+              type: 'category',
+              data: xAxisData,
+            },
+          ],
+          yAxis: [
+            {
+              type: 'value',
+              minInterval: 1,
+              axisLabel: {
+                show: true,
+                interval: 'auto',
+              },
+            },
+          ],
+          series: [
+            {
+              name: '总数',
+              type: 'bar',
+              barGap: '-100%',
+              barCategoryGap: '40%',
+              itemStyle: {color: 'rgba(0,0,0,0.2)'},
+              label: {
+                show: false,
+              },
+              data: allData,
+            },
+            {
+              name: '命中个数',
+              type: 'bar',
+              itemStyle: {color: '#4388fa'},
+              label: {
+                show: true,
+              },
+              data: xData,
+            },
+          ],
+        })
+      },
+      changeImgStyle(index, flag) {
+        var trs = document.querySelectorAll('.table_area .display_tr');
+        var img_open_list = document.querySelectorAll('.close');
+        var img_close_list = document.querySelectorAll('.open');
+          if (flag) {
+            trs[index].classList.add('tr_open');
+            img_open_list[index].classList.add('open_img');
+            img_close_list[index].classList.add('close_img');
+          } else {
+            trs[index].classList.remove('tr_open');
+            img_open_list[index].classList.remove('open_img');
+            img_close_list[index].classList.remove('close_img');
+          }
+      },
+    },
+  })
+</script>
+</body>
+</html>
