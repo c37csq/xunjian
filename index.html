@@ -246,19 +246,18 @@
         </el-col>
         <el-col :span="12">
           <el-table
-                  style="width: 682px;height: 100%;"
+                  style="width: 100%;height: 100%;"
                   :data="xjmzgzArr"
                   stripe
                   border
           >
             <el-table-column
-                    width="110"
+                    width="80"
                     align="center"
                     type="index"
                     label="序号">
             </el-table-column>
             <el-table-column
-                    width="180"
                     align="center"
                     prop="name"
                     label="维度">
@@ -266,13 +265,11 @@
             <el-table-column
                     prop="val"
                     align="center"
-                    width="180"
                     label="命中个数">
             </el-table-column>
             <el-table-column
                     prop="all"
                     align="center"
-                    width="180"
                     label="规则总数">
             </el-table-column>
           </el-table>
@@ -287,19 +284,18 @@
         </el-col>
         <el-col :span="12">
           <el-table
-                  style="width: 682px;height: 100%;"
+                  style="width: 100%;height: 100%;"
                   :data="xjmzgzArr"
                   stripe
                   border
           >
             <el-table-column
                     align="center"
-                    width="50"
+                    width="80"
                     type="index"
                     label="序号">
             </el-table-column>
             <el-table-column
-                    width="120"
                     align="center"
                     prop="name"
                     label="维度">
@@ -308,7 +304,6 @@
                     align="center"
                     label="风险项">
               <el-table-column
-                      width="120"
                       align="center"
                       label="严重">
                 <template slot-scope="scope">
@@ -316,7 +311,6 @@
                 </template>
               </el-table-column>
               <el-table-column
-                      width="120"
                       align="center"
                       label="警告">
                 <template slot-scope="scope">
@@ -324,7 +318,6 @@
                 </template>
               </el-table-column>
               <el-table-column
-                      width="120"
                       align="center"
                       prop="ts"
                       label="提示">
@@ -334,7 +327,6 @@
               </el-table-column>
             </el-table-column>
             <el-table-column
-                    width="120"
                     align="center"
                     label="风险评估">
               <template slot-scope="scope">
@@ -631,7 +623,10 @@
         item._expanded = false;
         item.detailMax = item.detail.slice(0, 100);
       });
-      this.renderTable(document.querySelector('.bottom_table_wrapper'), this.pArr);
+      this.render
+      
+      
+      (document.querySelector('.bottom_table_wrapper'), this.pArr);
     },
     mounted() {
       this.radarOpt();
